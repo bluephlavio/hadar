@@ -16,23 +16,33 @@ const sketch = p => {
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
 
-    const sourceBuilder = new Source.Builder();
-    const hadarBuilder = new Hadar.Builder();
-    const probeBuilder = new Probe.Builder();
+    const star = new Source.Builder()
+      .withMass(1e3)
+      .build();
 
-    const source = sourceBuilder.build(1e3, null, 0, {
-      color: theme.palette.primary.main,
-    });
+    const planet = new Source.Builder()
+      .withMass(1e2)
+      .orbiting(star)
+      .atDistance(100)
+      .build();
 
-    const probe = probeBuilder.build(source, 150, {
-      color: theme.palette.primary.main,
-    });
+    const probe = new Probe.Builder()
+      .orbiting(planet)
+      .atDistance(25)
+      .withOptions({
+        color: theme.palette.primary.main,
+      })
+      .build();
 
-    const hadar = hadarBuilder.build(source, 150, {
-      color: theme.palette.secondary.main,
-    });
+    const hadar =new Hadar.Builder()
+      .orbiting(star)
+      .atDistance(200)
+      .withOptions({
+        color: theme.palette.secondary.main,
+      })
+      .build();
 
-    const sources = [source];
+    const sources = [star, planet];
     const probes = [probe];
 
     p.sys = new Sys(sources, hadar, probes);

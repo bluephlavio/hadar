@@ -3,8 +3,8 @@ import p5 from 'p5';
 export const buildStateClass = p => {
   return class State {
     constructor(s, v) {
-      this.s = s;
-      this.v = v;
+      this.s = s instanceof p5.Vector ? s : p.createVector(0, 0);
+      this.v = v instanceof p5.Vector ? v : p.createVector(0, 0);
     }
 
     evolve(a, dt) {
@@ -18,6 +18,13 @@ export const buildStateClass = p => {
 
     velocity() {
       return this.v;
+    }
+
+    toString() {
+      return JSON.stringify({
+        s: this.s.toString(),
+        v: this.v.toString(),
+      });
     }
   }
 }
