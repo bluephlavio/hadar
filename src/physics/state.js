@@ -19,13 +19,6 @@ export const buildStateClass = p => {
     velocity() {
       return this.v;
     }
-
-    toString() {
-      return JSON.stringify({
-        s: this.s.toString(),
-        v: this.v.toString(),
-      });
-    }
   }
 }
 
