@@ -4,7 +4,11 @@ import { buildStateClass } from './state';
 export const buildOrbitClass = p => {
   const State = buildStateClass(p);
   return class Orbit {
-    constructor(parent, r, theta, omega) {
+    constructor(elements, parent) {
+      const { r, theta, omega } = elements || {};
+      this.r = (typeof r === 'number' && r >= 0 ) ? r : 0;
+      this.theta = (typeof theta === 'number') ? theta : 0;
+      this.omega = (typeof omega === 'number') ? omega : 0;
       this.parent = (
           !!parent &&
           typeof parent === 'object' &&
@@ -12,9 +16,10 @@ export const buildOrbitClass = p => {
         )
         ? parent
         : null;
-      this.r = (typeof r === 'number' && r >= 0 ) ? r : 0;
-      this.theta = (typeof theta === 'number') ? theta : 0;
-      this.omega = (typeof omega === 'number') ? omega : 0;
+    }
+
+    isSingular() {
+      return this.omega === 0 || this.r === 0;
     }
 
     evolve(dt) {
@@ -32,36 +37,22 @@ export const buildOrbitClass = p => {
     }
 
     velocity() {
-      if (this.omega !== 0) {
-        const speed = this.omega * this.r;
-        const x = this.r * p.cos(this.theta);
-        const y = this.r * p.sin(this.theta);
-        const versorR = p.createVector(x, y).normalize();
-        const versorZ = p.createVector(0, 0, 1);
-        const versorV = p5.Vector.cross(versorZ, versorR);
-        const v = p5.Vector.mult(versorV, speed);
-        if (this.parent) {
-          v.add(this.parent.velocity());
-        }
-        return v;
+      if (this.isSingular()) {
+        return !!this.parent ? this.parent.velocity() : p.createVector(0, 0);
       }
-      return !!this.parent ? this.parent.velocity() : p.createVector(0, 0);
+      const x = this.r * p.cos(this.theta);
+      const y = this.r * p.sin(this.theta);
+      const r = p.createVector(x, y, 0);
+      const omega = p.createVector(0, 0, this.omega);
+      const v = p5.Vector.cross(omega, r);
+      if (this.parent) {
+        v.add(this.parent.velocity());
+      }
+      return v;
     }
 
     state() {
-      const s = this.position();
-      const v = this.velocity();
-      const state = new State(s, v);
-      return state;
-    }
-
-    toString() {
-      return JSON.stringify({
-        parent: this.parent,
-        r: this.r,
-        theta: this.theta,
-        omega: this.omega,
-      });
+      return new State(this.position(), this.velocity());
     }
 
     static get Builder() {
@@ -87,7 +78,11 @@ export const buildOrbitClass = p => {
         }
 
         build() {
-          return new Orbit(this.parent, this.r, this.theta, this.omega);
+          return new Orbit({
+            r: this.r,
+            theta: this.theta,
+            omega: this.omega
+          }, this.parent);
         }
       }
     }
