@@ -1,58 +1,54 @@
 import {
-  buildSourceClass,
-  buildProbeClass,
-  buildHadarClass,
   buildSysClass,
 } from '../../physics';
 import { theme } from '../Theme';
 
 const sketch = p => {
 
-  const Source = buildSourceClass(p);
-  const Probe = buildProbeClass(p);
-  const Hadar = buildHadarClass(p);
   const Sys = buildSysClass(p);
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
-
-    const star = new Source.Builder()
-      .withMass(1e3)
+    p.sys = new Sys.Builder()
+      .fromHierarchy([
+        {
+          type: 'source',
+          mass: 1e3,
+          children: [
+            {
+              type: 'source',
+              mass: 1e2,
+              orbit: {
+                r: 250,
+                theta: p.random(0, p.TWO_PI),
+              },
+              children: [
+                {
+                  type: 'hadar',
+                  orbit: {
+                    r: 10,
+                    theta: p.random(0, p.TWO_PI),
+                  },
+                },
+              ],
+            },
+            {
+              type: 'probe',
+              orbit: {
+                r: 200,
+                theta: p.random(0, p.TWO_PI),
+              },
+            }
+          ],
+        },
+      ])
       .build();
-
-    const planet = new Source.Builder()
-      .withMass(1e2)
-      .orbiting(star)
-      .atDistance(100)
-      .build();
-
-    const probe = new Probe.Builder()
-      .orbiting(planet)
-      .atDistance(25)
-      .withOptions({
-        color: theme.palette.primary.main,
-      })
-      .build();
-
-    const hadar =new Hadar.Builder()
-      .orbiting(star)
-      .atDistance(200)
-      .withOptions({
-        color: theme.palette.secondary.main,
-      })
-      .build();
-
-    const sources = [star, planet];
-    const probes = [probe];
-
-    p.sys = new Sys(sources, hadar, probes);
   }
 
   p.draw = () => {
     p.background(255);
     p.sys.evolve(1);
-    // p.translate(p.width / 2, p.height / 2);
-    p.translate(200, 200);
+    p.translate(p.width / 2, p.height / 2);
     p.sys.render();
   }
 

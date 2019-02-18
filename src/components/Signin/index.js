@@ -13,7 +13,6 @@ import { LockOutlined } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 import { withFirebase } from '../Firebase';
-import Background from '../Background';
 import styles from './styles';
 
 const initialState = {
@@ -136,7 +135,6 @@ const Signin = props => {
   const { classes } = props;
   return (
     <main className={classes.main}>
-      <Background />
       <Paper className={classes.paper}>
         <Avatar className={classes.avatar}>
           <LockOutlined />

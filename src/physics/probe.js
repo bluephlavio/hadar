@@ -6,7 +6,8 @@ export const buildProbeClass = p => {
   const Orbit = buildOrbitClass(p);
   const State = buildStateClass(p);
   return class Probe {
-    constructor(state, options) {
+    constructor(props) {
+      const { state, options } = props || {};
       this.state = (
           !!state &&
           typeof state === 'object' &&
@@ -78,6 +79,7 @@ export const buildProbeClass = p => {
 
         withInitialAnomaly(theta) {
           this.theta = theta;
+          return this;
         }
 
         withMass(mass) {
@@ -91,7 +93,7 @@ export const buildProbeClass = p => {
         }
 
         build() {
-          const r3 = (typeof this.r === 'number' && this.r >= 0)
+          const r3 = (typeof this.r === 'number' && this.r > 0)
             ? Math.pow(this.r, 3)
             : 0;
           const omega = (
@@ -116,7 +118,10 @@ export const buildProbeClass = p => {
             .withAngularVelocity(omega)
             .build();
           const state = orbit.state();
-          return new Probe(state, this.options);
+          return new Probe({
+            state,
+            options: this.options
+          });
         }
       }
     }

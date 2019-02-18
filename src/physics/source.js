@@ -3,7 +3,8 @@ import { buildOrbitClass } from './orbit';
 export const buildSourceClass = p => {
   const Orbit = buildOrbitClass(p);
   return class Source {
-    constructor(mass, orbit, options) {
+    constructor(props) {
+      const { mass, orbit, options } = props || {};
       this.mass = (typeof mass === 'number' && mass > 0) ? mass : 1;
       this.orbit = (
           !!orbit &&
@@ -65,6 +66,7 @@ export const buildSourceClass = p => {
 
         withInitialAnomaly(theta) {
           this.theta = theta;
+          return this;
         }
 
         withMass(mass) {
@@ -102,7 +104,11 @@ export const buildSourceClass = p => {
             .withInitialAnomaly(this.theta)
             .withAngularVelocity(omega)
             .build();
-          return new Source(this.mass, orbit, this.options);
+          return new Source({
+            mass: this.mass,
+            orbit,
+            options: this.options,
+          });
         }
       }
     }

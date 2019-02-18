@@ -14,7 +14,6 @@ import { LockOutlined } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 import { withFirebase } from '../Firebase';
-import Background from '../Background';
 import {
   validateUsername,
   validateEmail,
@@ -255,7 +254,6 @@ const Signup = props => {
   const { classes } = props;
   return (
     <main className={classes.main}>
-      <Background />
       <Paper className={classes.paper}>
         <Avatar className={classes.avatar}>
           <LockOutlined />

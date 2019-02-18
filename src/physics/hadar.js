@@ -1,11 +1,10 @@
 import { buildOrbitClass } from './orbit';
-import { buildSourceClass } from './source';
 
 export const buildHadarClass = p => {
   const Orbit = buildOrbitClass(p);
-  const Source = buildSourceClass(p);
   return class Hadar {
-    constructor(orbit, options) {
+    constructor(props) {
+      const { orbit, options } = props || {};
       this.orbit = (
           !!orbit &&
           typeof orbit === 'object' &&
@@ -69,6 +68,7 @@ export const buildHadarClass = p => {
 
         withInitialAnomaly(theta) {
           this.theta = theta;
+          return this;
         }
 
         withMass(mass) {
@@ -82,7 +82,7 @@ export const buildHadarClass = p => {
         }
 
         build() {
-          const r3 = (typeof this.r === 'number' && this.r >= 0)
+          const r3 = (typeof this.r === 'number' && this.r > 0)
             ? Math.pow(this.r, 3)
             : 0;
           const omega = (
@@ -106,7 +106,10 @@ export const buildHadarClass = p => {
             .withInitialAnomaly(this.theta)
             .withAngularVelocity(omega)
             .build();
-          return new Source(this.mass, orbit, this.options);
+          return new Hadar({
+            orbit,
+            options: this.options
+          });
         }
       }
     }

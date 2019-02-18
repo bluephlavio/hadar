@@ -1,27 +1,25 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Grid,
   Typography,
   Button,
 } from '@material-ui/core';
 import { withAuth } from '../Auth';
+import Sketch from '../Sketch';
 
 const condition = user => !!user;
 
 const Home = (props) => {
   const { user } = props;
   return (
-    <Grid container
-      justify="center"
-      alignItems="center"
-    >
-      <Grid item>
-        <Typography component="h6" variant="h6">
-          Hey {user.displayName},
-        </Typography>
-      </Grid>
-      <Grid item>
+    <main>
+      <Sketch background />
+      <Typography
+        align="center"
+        component="h6"
+        variant="h6"
+      >
+        Hey {user.displayName},
         <Button
           variant="text"
           color="secondary"
@@ -30,8 +28,8 @@ const Home = (props) => {
             Sign out
           </Link>
         </Button>
-      </Grid>
-    </Grid>
+      </Typography>
+    </main>
   );
 }
 
