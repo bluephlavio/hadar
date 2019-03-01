@@ -1,131 +1,55 @@
-import {
-  buildSysClass,
-} from '../../physics';
+import { UnarySystem, BinarySystem } from '../../core/system';
 import { theme } from '../Theme';
 
 const sketch = p => {
 
-  const Sys = buildSysClass(p);
+  const color = theme.palette.primary.main;
+
+  const moon = new UnarySystem(1, color);
+  const earth = new UnarySystem(1, color);
+  const earthMoonSystem = new BinarySystem(earth, moon, 20);
+  const mercury = new UnarySystem(1, color);
+  const mars = new UnarySystem(1, color);
+  const phobos = new UnarySystem(1, color);
+  mars.addSatellite(phobos, 15);
+  const sunA1 = new UnarySystem(10, color);
+  const sunA2 = new UnarySystem(20, color);
+  const sunA = new BinarySystem(sunA1, sunA2, 10);
+  const sunB = new UnarySystem(30, color);
+  const sys = new BinarySystem(sunA, sunB, 50);
+  sys.addSatellite(mercury, 100);
+  sys.addSatellite(earthMoonSystem, 200);
+  sys.addSatellite(mars, 300);
+
+  let scaleFactor;
+  let translationVector;
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
-    p.sys = new Sys.Builder()
-      .fromHierarchy([
-        {
-          type: 'source',
-          mass: 1e3,
-          children: [
-            {
-              type: 'source',
-              mass: 1e2,
-              orbit: {
-                r: 250,
-                theta: p.random(0, p.TWO_PI),
-              },
-              children: [
-                {
-                  type: 'hadar',
-                  orbit: {
-                    r: 10,
-                    theta: p.random(0, p.TWO_PI),
-                  },
-                },
-              ],
-            },
-            {
-              type: 'probe',
-              orbit: {
-                r: 200,
-                theta: p.random(0, p.TWO_PI),
-              },
-            }
-          ],
-        },
-      ])
-      .build();
+    scaleFactor = 1;
+    translationVector = p.createVector(p.width / 2, p.height / 2);
   }
 
   p.draw = () => {
     p.background(255);
-    p.sys.evolve(1);
-    p.translate(p.width / 2, p.height / 2);
-    p.sys.render();
+    p.translate(translationVector.x, translationVector.y);
+    p.scale(scaleFactor);
+    sys.evolve(1);
+    sys.render(p);
   }
 
   p.canvasResized = () => {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
   }
 
-}
+  p.mouseWheel = event => {
+    scaleFactor += 1e-3 * event.delta;
+  }
 
-// const sketch = p => {
-//
-//   const g = (...attractors) => (s) => {
-//     const gField = p.createVector(0, 0);
-//     for (let a of attractors) {
-//       const ds = p5.Vector.sub(s, a.s);
-//       const r = p.max(ds.mag(), 50);
-//       const r3 = r * r;
-//       gField.add(p5.Vector.mult(ds, -a.m / r3));
-//     }
-//     return gField;
-//   }
-//
-//   const centralAttractor = {
-//     s: p.createVector(-200, 0),
-//     m: 1e3,
-//   }
-//
-//   const Obj = buildObjClass(p);
-//
-//   let sys;
-//
-//   p.setup = function() {
-//     const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
-//     canvas.position(0, 0);
-//     canvas.style('z-index', -1);
-//
-//     const objs = [];
-//
-//     for (let i = 0; i < 10; i++) {
-//       const x = p.random(-300, 300);
-//       const y = p.random(-300, 300);
-//       const v = 25;
-//       const vx = p.random(-v, v);
-//       const vy = p.random(-v, v);
-//       const r = p.random(3, 8);
-//       const c = theme.palette.primary.main;
-//       const trailLength = 25;
-//       const obj = new Obj(x, y, vx, vy, r, c, trailLength);
-//       obj.g = g(centralAttractor);
-//       objs.push(obj);
-//     }
-//
-//     const x = p.random(-300, 300);
-//     const y = p.random(-300,300);
-//     const vx = p.random(-25, 25);
-//     const vy = p.random(-25, 25);
-//     const r = 9;
-//     const c = theme.palette.secondary.main;
-//     const trailLength = 50;
-//     const obj = new Obj(x, y, vx, vy, r, c, trailLength);
-//     obj.g = g(centralAttractor);
-//     objs.push(obj);
-//
-//     sys = new Sys(objs);
-//   }
-//
-//   p.draw = function() {
-//     p.background(255);
-//     p.translate(p.width / 2, p.height / 2);
-//     sys.update(0.5);
-//     sys.draw();
-//   }
-//
-//   p.canvasResized = function() {
-//     p.resizeCanvas(p.windowWidth, p.windowHeight);
-//   }
-//
-// }
+  p.mouseDragged = () => {
+    translationVector.add(p.createVector(p.mouseX - p.pmouseX, p.mouseY - p.pmouseY));
+  }
+
+}
 
 export default sketch;
