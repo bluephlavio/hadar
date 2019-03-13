@@ -66,14 +66,14 @@ class Orbit {
 
   static get Builder() {
     return class Builder {
-      private elements: Elements;
       private parent: Orbit | null;
+      private elements: Elements;
 
       constructor() {
         this.parent = null;
         this.elements = {
           r: 0,
-          theta: 0,
+          theta: Math.random() * 2 * Math.PI,
           omega: 0,
         };
       }
