@@ -1,25 +1,36 @@
-import { UnarySystem, BinarySystem } from '../../core/system';
+import { Unary, Binary, Hadar, Probe, Scene } from '../../core';
 import { theme } from '../Theme';
 
 const sketch = p => {
 
-  const color = theme.palette.primary.main;
+  const sourceColor = p.color(theme.palette.primary.main);
+  const hadarColor = p.color(theme.palette.secondary.main);
+  const probeColor = p.color(theme.palette.primary.dark);
 
-  const moon = new UnarySystem(1, color);
-  const earth = new UnarySystem(1, color);
-  const earthMoonSystem = new BinarySystem(earth, moon, 20);
-  const mercury = new UnarySystem(1, color);
-  const mars = new UnarySystem(1, color);
-  const phobos = new UnarySystem(1, color);
+  const moon = new Unary(1, sourceColor);
+  const earth = new Unary(1, sourceColor);
+  const earthMoon = new Binary(earth, moon, 20);
+  const mercury = new Unary(1, sourceColor);
+  const mars = new Unary(1, sourceColor);
+  const phobos = new Unary(1, sourceColor);
   mars.addSatellite(phobos, 15);
-  const sunA1 = new UnarySystem(10, color);
-  const sunA2 = new UnarySystem(20, color);
-  const sunA = new BinarySystem(sunA1, sunA2, 10);
-  const sunB = new UnarySystem(30, color);
-  const sys = new BinarySystem(sunA, sunB, 50);
+  const sunA1 = new Unary(10, sourceColor);
+  const sunA2 = new Unary(20, sourceColor);
+  const sunA = new Binary(sunA1, sunA2, 10);
+  const sunB = new Unary(30, sourceColor);
+  const sys = new Binary(sunA, sunB, 50);
   sys.addSatellite(mercury, 100);
-  sys.addSatellite(earthMoonSystem, 200);
+  sys.addSatellite(earthMoon, 200);
   sys.addSatellite(mars, 300);
+  const hadar = new Hadar(hadarColor);
+  sys.addSatellite(hadar, 250);
+
+  const probe = new Probe.Builder(sys)
+    .orbiting(sys, 200)
+    .withColor(probeColor)
+    .build();
+
+  const scene = new Scene(sys, probe);
 
   let scaleFactor;
   let translationVector;
@@ -34,8 +45,14 @@ const sketch = p => {
     p.background(255);
     p.translate(translationVector.x, translationVector.y);
     p.scale(scaleFactor);
-    sys.evolve(1);
-    sys.render(p);
+    if (p.keyIsDown(p.UP_ARROW)) {
+      scene.host.fire(true);
+    } else if (p.keyIsDown(p.DOWN_ARROW)) {
+      scene.host.fire(false);
+    } else {
+      scene.host.propulsion.set(0, 0);
+    }
+    scene.update(1, p);
   }
 
   p.canvasResized = () => {

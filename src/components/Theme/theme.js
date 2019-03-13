@@ -1,5 +1,4 @@
 import { createMuiTheme } from '@material-ui/core/styles';
-// import 'typeface-quicksand';
 
 export const theme = createMuiTheme({
   palette: {
